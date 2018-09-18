@@ -4,3 +4,5 @@
 **/id_rsa.pub
 
 .terraform
+terraform.tfstate
+terraform.tfstate.*

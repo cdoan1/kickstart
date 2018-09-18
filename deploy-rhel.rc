@@ -1,9 +1,10 @@
 export TF_VAR_image_name=REDHAT_7_64
+export TF_VAR_boot_count=1
 export TF_VAR_master_count=1
-export TF_VAR_manage_count=0
-export TF_VAR_va_count=0
-export TF_VAR_worker_count=0
-export TF_VAR_proxy_count=0
+export TF_VAR_manage_count=1
+export TF_VAR_va_count=1
+export TF_VAR_worker_count=3
+export TF_VAR_proxy_count=1
 export TF_VAR_vipmaster_count=0
 export TF_VAR_vipproxy_count=0
 export TF_VAR_dc="tor01"

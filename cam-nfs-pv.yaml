@@ -1,0 +1,67 @@
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+    name: cam-mongo-pv
+    labels:
+        type: cam-mongo
+spec:
+    capacity:
+        storage: 15Gi
+    accessModes:
+        - ReadWriteMany
+    nfs:
+        server: 10.166.30.179
+        path: /export/CAM_db
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+    name: cam-logs-pv
+    labels:
+        type: cam-logs
+spec:
+    capacity:
+        storage: 10Gi
+    accessModes:
+    - ReadWriteMany
+    nfs:
+        server: 10.166.30.179
+        path: /export/CAM_logs
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+    name: cam-terraform-pv
+    labels:
+        type: cam-terraform
+spec:
+    capacity:
+        storage: 15Gi
+    accessModes:
+    - ReadWriteMany
+    nfs:
+        server: 10.166.30.179
+        path: /export/CAM_terraform
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+    name: cam-bpd-appdata-pv
+    labels:
+        type: cam-bpd-appdata
+spec:
+    capacity:
+        storage: 20Gi
+    accessModes:
+    - ReadWriteMany
+    nfs:
+        server: 10.166.30.179
+        path: /export/CAM_BPD_appdata

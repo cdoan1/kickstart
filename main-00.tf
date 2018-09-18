@@ -1,6 +1,7 @@
 ## Setup needed variables
 
 variable "master_count" {}
+variable "boot_count" {}
 variable "va_count" {}
 variable "manage_count" {}
 variable "worker_count" {}
@@ -14,6 +15,9 @@ variable "domain" {
   description = "base domain"
   default     = "example.com"
 }
+
+variable "boot_vcpu" { default = "4" }
+variable "boot_ram" { default = "8192" }
 
 variable "master_vcpu" {
   description = "number of cpu possible values 4, 8, 16"
@@ -49,6 +53,47 @@ data "template_file" "setup_docker_master" {
   
   vars {
     proxy = "${var.proxy}"
+  }
+}
+
+resource "softlayer_virtual_guest" "boot" {
+  count                = "${var.boot_count}"
+  image                = "${var.image_name}"
+  name                 = "${var.prefix}-boot-${format("%d",count.index + 1)}"
+  domain               = "${var.dc}.${var.domain}"
+  ssh_keys             = ["922553"]
+  image                = "${var.image_name}"
+  region               = "${var.dc}"
+  hourly_billing       = true
+  private_network_only = false
+  cpu                  = "${var.boot_vcpu}"
+  ram                  = "${var.boot_ram}"
+  disks                = [100]
+  local_disk           = false
+
+  provisioner "local-exec" {
+    command = "scp ${path.module}/scripts/setup-docker.sh.tpl root@${self.ipv4_address_private}:/tmp"
+  }
+
+  provisioner "local-exec" {
+    command = "ssh root@${self.ipv4_address_private} 'chmod 755 /tmp/setup-docker.sh.tpl ; ls -al /tmp/setup-docker.sh.tpl'"
+  }
+
+  provisioner "local-exec" {
+    command = "ssh root@${self.ipv4_address_private} '/tmp/setup-docker.sh.tpl'"
+  }
+
+  # update authorized_keys
+  provisioner "local-exec" {
+    command = "scp ${path.module}/scripts/id_rsa.pub root@${self.ipv4_address_private}:/root/.ssh"
+  }
+
+  provisioner "local-exec" {
+    command = "ssh root@${self.ipv4_address_private} 'cd /root/.ssh ; cat id_rsa.pub >> authorized_keys'"
+  }
+
+  provisioner "local-exec" {
+    command = "ssh root@${self.ipv4_address_private} sed -i 's/127.0.1.1/${self.ipv4_address_private}/g' /etc/hosts"
   }
 }
 
@@ -223,7 +268,7 @@ resource "softlayer_virtual_guest" "proxy" {
   ssh_keys             = ["922553"]
   region               = "${var.dc}"
   hourly_billing       = true
-  private_network_only = true
+  private_network_only = false
   cpu                  = 4
   ram                  = 4096
   disks                = [25]
